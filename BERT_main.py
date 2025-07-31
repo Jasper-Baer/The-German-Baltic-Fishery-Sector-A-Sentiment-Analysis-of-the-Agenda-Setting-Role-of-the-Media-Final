@@ -16,9 +16,9 @@ from BERT_train_test_predict import train, test, predict
 ###############################################################################
 
 # Load training data
-data = pd.read_excel(r'data_train_sentiment.xlsx')
-data = pd.read_excel(r'data_train_fishery_stance.xlsx')
-data = pd.read_excel(r'data_train_topic.xlsx')
+# data = pd.read_excel(r'data_train_sentiment.xlsx')
+# data = pd.read_excel(r'data_train_fishery_stance.xlsx')
+# data = pd.read_excel(r'data_train_topic.xlsx')
 
 # Set path for storing the trained model
 #PATH = r"Data\fishery_model_sentiment.pt"
@@ -83,7 +83,7 @@ train(PATH, epochs, model, bert_type, optimizer, lr_scheduler, train_on_gpu, tra
 
 model.load_state_dict(torch.load(PATH))       
 
-# Change 3 to 4 for topic classification model
+# Change 3 to 5 for topic classification model
 f1_score = test(model, bert_type, train_on_gpu, test_dataloader, 3)
 
 ###############################################################################
