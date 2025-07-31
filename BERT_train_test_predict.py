@@ -278,27 +278,24 @@ def test(model, bert_type, train_on_gpu, test_dataloader, num_classes = 3):
     labels = np.asarray(labels).reshape(num_classes,num_classes)
     if num_classes == 3:
         
-      #  sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["negative", "neutral", "positive"], yticklabels=["negative", "neutral", "postive"])
-        sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["contra fishery", "neutral", "pro fishery"], yticklabels=["contra fishery", "neutral", "pro fishery"])
-      
-        
-    elif num_classes == 2:
-        
-        sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["negative", "positive"], yticklabels=["negative", "postive"])
-    
+        sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["Negative", "Neutral", "Positive"], yticklabels=["Negative", "Neutral", "Postive"])
+      # sn.heatmap(df_cm, annot=labels, annot_kws={"size": 10}, fmt="", cmap="Greys", cbar=False, xticklabels=["Ecological Health", "Neutral", "Socio-Economic Viability"], yticklabels=["Ecological Health", "Neutral", "Socio-Economic Viability"])
+           
+        plt.xlabel("True Class")
+        plt.ylabel("Predicted Class")
+        plt.savefig(r'Figures\figureS1.svg', format='svg', dpi=500, bbox_inches='tight')
+        plt.savefig(r'Figures\figureS1.eps', format='eps', dpi=500, bbox_inches='tight')
+        plt.show()
+            
     elif num_classes == 5: 
        
-       sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["Class_1", "Class_2", "Class_3", "Class_4", "Class_5"], yticklabels=["Class_1", "Class_2", "Class_3", "Class_4", "Class_5"])     
-    
-    elif num_classes == 4: 
-       
-       sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=["stocks and \n quota management", "sustainability and \n environmental protection", "fishery support \n and aid", "other"], yticklabels=["stocks and \n quota management", "sustainability and \n environmental protection", "fishery support \n and aid", "other"]) 
-       
-    plt.xlabel("True Class")
-    plt.ylabel("Predicted Class")
-    plt.savefig(r'Figures\figureS1.svg', format='svg', dpi=500)
-    plt.savefig(r'Figures\figureS1.eps', format='eps', dpi=500)
-    plt.show()
+       sn.heatmap(df_cm, annot=labels, annot_kws={"size": 12}, fmt="", cmap="Greys", cbar=False, xticklabels=['Regulatory \n fishery law', 'Scientific \n (governance) advice', 'Environmental and \n nature conservation', 'Fisheries subsides and \n institutional support', "Other"], yticklabels=['Regulatory \n fishery law', 'Scientific \n (governance) advice','Environmental and \n nature conservation', 'Fisheries subsides and \n institutional support', "Other"])     
+        
+       plt.xlabel("True Class")
+       plt.ylabel("Predicted Class")
+       plt.savefig(r'Figures\figureS3.svg', format='svg', dpi=500, bbox_inches='tight')
+       plt.savefig(r'Figures\figureS3.eps', format='eps', dpi=500, bbox_inches='tight')
+       plt.show()
     
     return(test_f1_score)
     
