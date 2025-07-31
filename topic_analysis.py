@@ -7,6 +7,7 @@ Created on Wed Jan  1 16:33:17 2025
 
 import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
+from data_prep import sentiment_index_yearly, fishery_year
 
 import pandas as pd
 import os
@@ -27,12 +28,12 @@ party_data_path = r"D:\Studium\PhD\Github\Fischerei - Master\Manuall_Anot.xlsx"
 
 ###############################################################################
 
-def load_object(name, dir='Data'):
+def load_object(name, dir='saved_objects'):
     path = os.path.join(dir, f"{name}.pkl")
     with open(path, 'rb') as f:
         return pickle.load(f)
     
-analysis_results = load_object('analysis_results_stakeholders')
+analysis_results = load_object('analysis_results')
 
 ###############################################################################
 # Generate figure 5
@@ -56,20 +57,24 @@ color_map_topic = {
 color_map_party = {'CDU': 'black', 'GREENS': 'green', 'SPD': 'red', 'PPA_rest':'grey'}
 
 numerical_mapping = {
-    "Bestands- und Fischereimanagement": 0,
-    "Nachhaltigkeit und Umweltschutz": 1,
-    "Fischereihilfe und Unterstützung": 2,
-    "Sonstiges": 3  
+   "Regulation": 0,
+   "Science":1,
+    "Nachhaltigkeit und Umweltschutz": 2,
+    "Fischereihilfe und Unterstützung": 3,
+    "Sonstiges": 4  
 }
+
 number_to_label = {v: k for k, v in numerical_mapping.items()}
 grouped_mapping = {
-    "Bestands- und Fischereimanagement": "Fisheries governance \n and management",
+    "Regulation": "Regulatory fishery law",
+    "Science": "Scientific (Governance) advice",
     "Fischereihilfe und Unterstützung": "Fisheries subsides and \n institutional support",
     "Nachhaltigkeit und Umweltschutz": "Environmental and \n nature conservation",
     "Sonstiges": "Other"
 }
 labels_topic = [
-    'Fisheries governance \n and management',
+    "Regulatory fishery law",
+    "Scientific (Governance) advice",
     'Fisheries subsides and \n institutional support',
     'Environmental and \n nature conservation',
     'Other'
@@ -89,7 +94,7 @@ label_map_topic = {
 }
 
 # Load sentences labeled with topics
-data_main = pd.read_csv(r'Data\fishery_lemmas_sentences_labeled_Topic.csv', low_memory=False)
+data_main = pd.read_csv(r'Data\fishery_lemmas_sentences_labeled_topic_30_07.csv', low_memory=False)
 
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(20,6))
 
@@ -205,6 +210,46 @@ ax1.set_title('(a) Stakeholder Groups', y=-0.55, fontsize=16)
 ax2.set_title('(b) Parties', y=-0.55, fontsize=16)
 
 fig.subplots_adjust(left=0.07, right=0.975, top=0.95, bottom=0.15)
-plt.savefig(r'Figures\figure5.svg', format='svg', bbox_inches='tight')
-plt.savefig(r'Figures\figure5.eps', format='eps', bbox_inches='tight')
+
+plt.savefig(r'Figures\figure5.svg', format='svg', dpi=500, bbox_inches='tight')
+plt.savefig(r'Figures\figure5.eps', format='eps', dpi=500, bbox_inches='tight')
 plt.show()
+
+###############################################################################
+# Generate data for tables S11, S12 and 2(c)
+###############################################################################
+
+data = pd.read_csv(r'Data\fishery_lemmas_sentences_labeled_fishery_stance.csv', low_memory=False)
+#data = pd.read_csv(r'Data\fishery_lemmas_sentences_labeled_sentiment.csv', low_memory=False)
+
+categories = ['CDU', 'GREENS', 'SPD', 'PPA_rest']
+color_map = {'CDU': 'black', 'GREENS': 'green', 'SPD': 'red', 'PPA_rest':'grey'}
+label_map = {'CDU': 'CDU', 'GREENS': 'Greens', 'SPD': 'SPD', 'PPA_rest':'PPA Other'}
+
+stats_list = []
+
+for category in categories:
+
+    subset = pd.read_excel(party_data_path, sheet_name=category)['text']
+    subset_data = data[data['text'].isin(subset)].copy()
+
+    subset_data["Date"] = pd.to_datetime(subset_data["Date"], format='%Y-%m-%d')
+    subset_data['Year'] = pd.to_datetime(subset_data['Date'], errors='coerce').dt.year
+
+    yearly_share = sentiment_index_yearly(fishery_year(subset_data, quota_dates))[['year','Sentiment Index']]
+    yearly_share.index = quota_dates[:-1]
+
+    if category == 'GREENS':
+        yearly_share = yearly_share[2:]
+    
+    desc = yearly_share['Sentiment Index'].describe()
+    stats_list.append({
+        'Party': label_map[category],
+        'Mean': desc['mean'],
+        'Std': desc['std'],
+        'Min': desc['min'],
+        'Max': desc['max']
+    })
+
+stats_df = pd.DataFrame(stats_list)
+stats_df.to_excel(f'Results_new\party_stats.xlsx', index=False)
